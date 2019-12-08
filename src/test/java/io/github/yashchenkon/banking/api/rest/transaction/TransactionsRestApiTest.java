@@ -70,7 +70,7 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
 
     @Test
     @Tag("slow")
-    public void shouldTransferMoneyHighConcurrency() throws InterruptedException {
+    public void shouldTransferMoneyHighConcurrency() {
         String sourceAccountId = createRandomAccount();
         String targetAccountId = createRandomAccount();
 
@@ -89,7 +89,7 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
             try {
                 latch.await(200, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         });
 
@@ -101,7 +101,7 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
 
     @Test
     @Tag("slow")
-    public void testAllOperationsAllTogether() throws InterruptedException {
+    public void testAllOperationsTogetherHighConcurrency() {
         String sourceAccountId = createRandomAccount();
         String targetAccountId = createRandomAccount();
 
@@ -124,7 +124,7 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
             try {
                 latch.await(200, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         });
 
