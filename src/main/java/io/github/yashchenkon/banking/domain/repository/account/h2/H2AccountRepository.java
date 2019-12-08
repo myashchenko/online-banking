@@ -26,7 +26,7 @@ public class H2AccountRepository implements AccountRepository {
     @Override
     public Account accountOfIban(String iban) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM accounts WHERE iban = ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM accounts WHERE id = ?")) {
             preparedStatement.setString(1, iban);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -41,7 +41,7 @@ public class H2AccountRepository implements AccountRepository {
     @Override
     public void save(Account account) {
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts(iban, name, currency, balance) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts(id, name, currency, balance) VALUES (?, ?, ?, ?)")) {
 
             preparedStatement.setString(1, account.iban());
             preparedStatement.setString(2, account.name());
@@ -52,12 +52,50 @@ public class H2AccountRepository implements AccountRepository {
             if (result == 0) {
                 throw new DataAccessException("Can't create account, affected rows size == 0");
             }
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
 
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    account.initId(generatedKeys.getLong(1));
-                }
+    @Override
+    public boolean exists(String iban) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT 1 FROM accounts WHERE id = ? LIMIT 1")) {
+            preparedStatement.setString(1, iban);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
             }
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public boolean withdraw(String iban, Double amount) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?")) {
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, iban);
+            preparedStatement.setDouble(3, amount);
+
+            int updatedRows = preparedStatement.executeUpdate();
+            return updatedRows != 0;
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public boolean deposit(String iban, Double amount) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE id = ?")) {
+            preparedStatement.setDouble(1, amount);
+            preparedStatement.setString(2, iban);
+            preparedStatement.setDouble(3, amount);
+
+            int updatedRows = preparedStatement.executeUpdate();
+            return updatedRows != 0;
         } catch (SQLException e) {
             throw new DataAccessException(e);
         }

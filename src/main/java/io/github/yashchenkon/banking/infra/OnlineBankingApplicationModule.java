@@ -11,10 +11,15 @@ import io.github.yashchenkon.banking.api.rest.account.AccountsRestApiV1_0;
 import io.github.yashchenkon.banking.api.rest.account.adapter.AccountsRestApiAdapterV1_0;
 import io.github.yashchenkon.banking.api.rest.account.validator.AccountRestApiValidatorV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.TransactionsRestApiV1_0;
+import io.github.yashchenkon.banking.api.rest.transaction.adapter.TransactionsRestApiAdapterV1_0;
+import io.github.yashchenkon.banking.api.rest.transaction.validator.TransactionsRestApiValidatorV1_0;
 import io.github.yashchenkon.banking.domain.repository.account.AccountRepository;
 import io.github.yashchenkon.banking.domain.repository.account.h2.H2AccountRepository;
+import io.github.yashchenkon.banking.domain.repository.transaction.TransactionRepository;
+import io.github.yashchenkon.banking.domain.repository.transaction.h2.H2TransactionRepository;
 import io.github.yashchenkon.banking.domain.service.account.AccountService;
 import io.github.yashchenkon.banking.domain.service.account.iban.IbanGenerator;
+import io.github.yashchenkon.banking.domain.service.transaction.TransactionService;
 import io.github.yashchenkon.banking.infra.properties.DatabaseProperties;
 import io.github.yashchenkon.banking.infra.properties.PropertiesLoader;
 
@@ -39,8 +44,12 @@ public class OnlineBankingApplicationModule extends AbstractModule {
         bind(AccountService.class).in(Singleton.class);
         bind(AccountRestApiValidatorV1_0.class).in(Singleton.class);
         bind(AccountsRestApiAdapterV1_0.class).in(Singleton.class);
-
         bind(AccountsRestApiV1_0.class).in(Singleton.class);
+
+        bind(TransactionRepository.class).to(H2TransactionRepository.class).in(Singleton.class);
+        bind(TransactionService.class).in(Singleton.class);
+        bind(TransactionsRestApiValidatorV1_0.class).in(Singleton.class);
+        bind(TransactionsRestApiAdapterV1_0.class).in(Singleton.class);
         bind(TransactionsRestApiV1_0.class).in(Singleton.class);
     }
 

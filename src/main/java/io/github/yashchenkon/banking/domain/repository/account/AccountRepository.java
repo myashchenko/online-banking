@@ -7,4 +7,10 @@ public interface AccountRepository {
     Account accountOfIban(String iban);
 
     void save(Account account);
+
+    boolean exists(String iban);
+
+    boolean withdraw(String iban, Double amount);
+
+    boolean deposit(String iban, Double amount);
 }

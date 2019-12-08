@@ -30,7 +30,7 @@ public class AccountService {
     public String create(CreateAccountDto request) {
         String iban = ibanGenerator.generate();
         Currency currency = Currency.getInstance(request.currency());
-        Account account = new Account(null, iban, request.name(), currency, 0.0);
+        Account account = new Account(iban, request.name(), currency, 0.0);
 
         repository.save(account);
 
