@@ -19,4 +19,15 @@ dependencies {
     implementation "com.google.inject:guice:${guiceVersion}"
 
     implementation "com.sparkjava:spark-core:${sparkVersion}"
+
+    implementation "com.h2database:h2:${h2Version}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    testImplementation "io.rest-assured:json-path:${restAssuredVersion}"
+}
+
+test {
+    useJUnitPlatform()
 }

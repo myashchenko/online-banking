@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.yashchenkon.banking.api.rest.account.AccountsRestApiV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.TransactionsRestApiV1_0;
+import io.github.yashchenkon.banking.infra.exception.OnlineBankingApplicationExceptionHandler;
 import spark.Spark;
 
 import javax.inject.Inject;
@@ -29,10 +30,12 @@ public class OnlineBankingApplicationServer {
     public void run(int port) {
         LOGGER.info("Starting Online Banking Application...");
 
-        Spark.exception(NullPointerException.class, (ex, req, res) -> LOGGER.error("Err NPE"));
+        Spark.exception(Exception.class, new OnlineBankingApplicationExceptionHandler(gson));
         Spark.initExceptionHandler(ex -> LOGGER.error(ex.getMessage()));
 
         Spark.port(port);
+
+        Spark.before((request, response) -> response.type("application/json"));
 
         Spark.path("/api/v1.0", () -> {
             Spark.path("/accounts", () -> {
