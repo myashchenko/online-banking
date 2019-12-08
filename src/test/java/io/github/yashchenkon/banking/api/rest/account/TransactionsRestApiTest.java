@@ -87,10 +87,10 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         verifyAccount(targetAccountId, amount);
     }
 
-    private void transferAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch readySteadyGo, String sourceAccountId, String targetAccountId, Double amount) throws InterruptedException {
+    private void transferAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String sourceAccountId, String targetAccountId, Double amount) throws InterruptedException {
         for (int i = 0; i < 5000; i++) {
             threadPoolExecutor.submit((Callable<Void>) () -> {
-                readySteadyGo.await();
+                startAllTogether.await();
                 transfer(sourceAccountId, targetAccountId, amount);
                 return null;
             });
