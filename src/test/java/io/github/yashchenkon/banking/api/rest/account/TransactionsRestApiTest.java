@@ -1,7 +1,10 @@
 package io.github.yashchenkon.banking.api.rest.account;
 
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.DepositMoneyRequestV1_0;
@@ -10,13 +13,20 @@ import io.github.yashchenkon.banking.api.rest.transaction.body.WithdrawMoneyRequ
 import io.github.yashchenkon.banking.domain.model.transaction.TransactionType;
 import io.restassured.RestAssured;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class TransactionsRestApiTest extends BaseRestApiTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsRestApiTest.class);
 
     @Test
     public void shouldDepositMoney() {
@@ -58,6 +68,7 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
     }
 
     @Test
+    @Tag("slow")
     public void shouldTransferMoneyHighConcurrency() throws InterruptedException {
         String sourceAccountId = createRandomAccount();
         String targetAccountId = createRandomAccount();
@@ -66,35 +77,120 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         deposit(sourceAccountId, amount);
         deposit(targetAccountId, amount);
 
-        ScheduledThreadPoolExecutor threadPoolExecutor1 = new ScheduledThreadPoolExecutor(5);
-        threadPoolExecutor1.prestartAllCoreThreads();
+        List<ScheduledThreadPoolExecutor> executors = createExecutors(2, 5);
 
-        ScheduledThreadPoolExecutor threadPoolExecutor2 = new ScheduledThreadPoolExecutor(5);
-        threadPoolExecutor1.prestartAllCoreThreads();
+        CountDownLatch sync = new CountDownLatch(1);
+        CountDownLatch latch1 = transferAsync(executors.get(0), sync, sourceAccountId, targetAccountId, 1.0, 5000);
+        CountDownLatch latch2 = transferAsync(executors.get(1), sync, targetAccountId, sourceAccountId, 1.0, 5000);
+        sync.countDown();
 
-        CountDownLatch readySteadyGo = new CountDownLatch(1);
-        transferAsync(threadPoolExecutor1, readySteadyGo, sourceAccountId, targetAccountId, 1.0);
-        transferAsync(threadPoolExecutor2, readySteadyGo, targetAccountId, sourceAccountId, 1.0);
-        readySteadyGo.countDown();
+        Stream.of(latch1, latch2).forEach(latch -> {
+            try {
+                latch.await(200, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
-        threadPoolExecutor1.shutdown();
-        threadPoolExecutor1.awaitTermination(60L, TimeUnit.SECONDS);
-
-        threadPoolExecutor2.shutdown();
-        threadPoolExecutor2.awaitTermination(60L, TimeUnit.SECONDS);
+        shutdownExecutors(executors);
 
         verifyAccount(sourceAccountId, amount);
         verifyAccount(targetAccountId, amount);
     }
 
-    private void transferAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String sourceAccountId, String targetAccountId, Double amount) throws InterruptedException {
-        for (int i = 0; i < 5000; i++) {
+    @Test
+    @Tag("slow")
+    public void testAllOperationsAllTogether() throws InterruptedException {
+        String sourceAccountId = createRandomAccount();
+        String targetAccountId = createRandomAccount();
+
+        Double amount = 10000.0;
+        deposit(sourceAccountId, amount);
+        deposit(targetAccountId, amount);
+
+        List<ScheduledThreadPoolExecutor> executors = createExecutors(6, 2);
+
+        CountDownLatch readySteadyGo = new CountDownLatch(1);
+        CountDownLatch latch1 = transferAsync(executors.get(0), readySteadyGo, sourceAccountId, targetAccountId, 1.0, 2000);
+        CountDownLatch latch2 = transferAsync(executors.get(1), readySteadyGo, targetAccountId, sourceAccountId, 1.0, 2000);
+        CountDownLatch latch3 = depositAsync(executors.get(2), readySteadyGo, sourceAccountId, 1.0, 2000);
+        CountDownLatch latch4 = depositAsync(executors.get(3), readySteadyGo, targetAccountId, 1.0, 2000);
+        CountDownLatch latch5 = withdrawAsync(executors.get(4), readySteadyGo, sourceAccountId, 1.0, 2000);
+        CountDownLatch latch6 = withdrawAsync(executors.get(5), readySteadyGo, targetAccountId, 1.0, 2000);
+        readySteadyGo.countDown();
+
+        Stream.of(latch1, latch2, latch3, latch4, latch5, latch6).forEach(latch -> {
+            try {
+                latch.await(200, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        shutdownExecutors(executors);
+
+        verifyAccount(sourceAccountId, amount);
+        verifyAccount(targetAccountId, amount);
+    }
+
+    private CountDownLatch transferAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String sourceAccountId, String targetAccountId, Double amount, int numberOfTasks) {
+        CountDownLatch latch = new CountDownLatch(numberOfTasks);
+        for (int i = 0; i < numberOfTasks; i++) {
             threadPoolExecutor.submit((Callable<Void>) () -> {
                 startAllTogether.await();
                 transfer(sourceAccountId, targetAccountId, amount);
+                latch.countDown();
                 return null;
             });
         }
+        return latch;
+    }
+
+    private CountDownLatch depositAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String targetAccountId, Double amount, int numberOfTasks) {
+        CountDownLatch latch = new CountDownLatch(numberOfTasks);
+        for (int i = 0; i < numberOfTasks; i++) {
+            threadPoolExecutor.submit((Callable<Void>) () -> {
+                startAllTogether.await();
+                deposit(targetAccountId, amount);
+                latch.countDown();
+                return null;
+            });
+        }
+        return latch;
+    }
+
+    private CountDownLatch withdrawAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String targetAccountId, Double amount, int numberOfTasks) {
+        CountDownLatch latch = new CountDownLatch(numberOfTasks);
+        for (int i = 0; i < numberOfTasks; i++) {
+            threadPoolExecutor.submit((Callable<Void>) () -> {
+                startAllTogether.await();
+                withdraw(targetAccountId, amount);
+                latch.countDown();
+                return null;
+            });
+        }
+        return latch;
+    }
+
+    private List<ScheduledThreadPoolExecutor> createExecutors(int count, int threads) {
+        return IntStream.range(0, count)
+            .mapToObj($ -> new ScheduledThreadPoolExecutor(threads))
+            .peek(ThreadPoolExecutor::prestartAllCoreThreads)
+            .collect(Collectors.toList());
+    }
+
+    private void shutdownExecutors(List<ScheduledThreadPoolExecutor> executors) {
+        executors.forEach(executor -> {
+            LOGGER.info("Shutting down executor");
+            executor.shutdown();
+            try {
+                LOGGER.info("Awaiting shutting down executor");
+                executor.awaitTermination(120L, TimeUnit.SECONDS);
+                LOGGER.info("Awaiting shutting down executor has been done");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private String createRandomAccount() {
