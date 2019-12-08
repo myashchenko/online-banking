@@ -44,7 +44,10 @@ public class OnlineBankingApplicationServer {
             });
 
             Spark.path("/transactions", () -> {
-                Spark.post("/", transactionsRestApi.create(), gson::toJson);
+                Spark.post("/transfer", transactionsRestApi.transfer(), gson::toJson);
+                Spark.post("/deposit", transactionsRestApi.deposit(), gson::toJson);
+                Spark.post("/withdraw", transactionsRestApi.withdraw(), gson::toJson);
+                Spark.get("/:id", transactionsRestApi.getById(), gson::toJson);
             });
         });
 

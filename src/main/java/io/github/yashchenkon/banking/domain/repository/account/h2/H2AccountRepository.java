@@ -3,34 +3,35 @@ package io.github.yashchenkon.banking.domain.repository.account.h2;
 import io.github.yashchenkon.banking.domain.exception.DataAccessException;
 import io.github.yashchenkon.banking.domain.model.account.Account;
 import io.github.yashchenkon.banking.domain.repository.account.AccountRepository;
-import io.github.yashchenkon.banking.domain.repository.account.h2.transformer.AccountRsTransformer;
+import io.github.yashchenkon.banking.domain.repository.account.h2.assembler.AccountAssembler;
+import io.github.yashchenkon.banking.infra.database.ConnectionProvider;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import javax.inject.Inject;
-import javax.sql.DataSource;
 
 public class H2AccountRepository implements AccountRepository {
 
-    private final DataSource dataSource;
+    private final ConnectionProvider connectionProvider;
+    private final AccountAssembler accountAssembler;
 
     @Inject
-    public H2AccountRepository(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public H2AccountRepository(ConnectionProvider connectionProvider, AccountAssembler accountAssembler) {
+        this.connectionProvider = connectionProvider;
+        this.accountAssembler = accountAssembler;
     }
 
     @Override
-    public Account accountOfIban(String iban) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM accounts WHERE id = ?")) {
+    public Account accountOfId(String iban) {
+        Connection connection = connectionProvider.acquire();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM accounts WHERE id = ?")) {
             preparedStatement.setString(1, iban);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return new AccountRsTransformer(resultSet).transform();
+                return accountAssembler.assemble(resultSet);
             }
 
         } catch (SQLException e) {
@@ -40,8 +41,8 @@ public class H2AccountRepository implements AccountRepository {
 
     @Override
     public void save(Account account) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts(id, name, currency, balance) VALUES (?, ?, ?, ?)")) {
+        Connection connection = connectionProvider.acquire();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO accounts(id, name, currency, balance) VALUES (?, ?, ?, ?)")) {
 
             preparedStatement.setString(1, account.iban());
             preparedStatement.setString(2, account.name());
@@ -59,8 +60,9 @@ public class H2AccountRepository implements AccountRepository {
 
     @Override
     public boolean exists(String iban) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT 1 FROM accounts WHERE id = ? LIMIT 1")) {
+        Connection connection = connectionProvider.acquire();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT 1 FROM accounts WHERE id = ? LIMIT 1")) {
             preparedStatement.setString(1, iban);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -73,8 +75,8 @@ public class H2AccountRepository implements AccountRepository {
 
     @Override
     public boolean withdraw(String iban, Double amount) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?")) {
+        Connection connection = connectionProvider.acquire();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?")) {
             preparedStatement.setDouble(1, amount);
             preparedStatement.setString(2, iban);
             preparedStatement.setDouble(3, amount);
@@ -88,11 +90,10 @@ public class H2AccountRepository implements AccountRepository {
 
     @Override
     public boolean deposit(String iban, Double amount) {
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE id = ?")) {
+        Connection connection = connectionProvider.acquire();
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE id = ?")) {
             preparedStatement.setDouble(1, amount);
             preparedStatement.setString(2, iban);
-            preparedStatement.setDouble(3, amount);
 
             int updatedRows = preparedStatement.executeUpdate();
             return updatedRows != 0;

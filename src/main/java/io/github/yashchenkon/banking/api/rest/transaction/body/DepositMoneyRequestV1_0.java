@@ -1,17 +1,8 @@
 package io.github.yashchenkon.banking.api.rest.transaction.body;
 
-public class ProcessTransactionRequestV1_0 {
-    private String sourceAccountId;
+public class DepositMoneyRequestV1_0 {
     private String targetAccountId;
     private Double amount;
-
-    public String getSourceAccountId() {
-        return sourceAccountId;
-    }
-
-    public void setSourceAccountId(String sourceAccountId) {
-        this.sourceAccountId = sourceAccountId;
-    }
 
     public String getTargetAccountId() {
         return targetAccountId;

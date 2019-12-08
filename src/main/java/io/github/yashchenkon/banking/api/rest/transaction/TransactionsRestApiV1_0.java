@@ -3,7 +3,9 @@ package io.github.yashchenkon.banking.api.rest.transaction;
 import com.google.gson.Gson;
 
 import io.github.yashchenkon.banking.api.rest.transaction.adapter.TransactionsRestApiAdapterV1_0;
-import io.github.yashchenkon.banking.api.rest.transaction.body.ProcessTransactionRequestV1_0;
+import io.github.yashchenkon.banking.api.rest.transaction.body.DepositMoneyRequestV1_0;
+import io.github.yashchenkon.banking.api.rest.transaction.body.TransferMoneyRequestV1_0;
+import io.github.yashchenkon.banking.api.rest.transaction.body.WithdrawMoneyRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.validator.TransactionsRestApiValidatorV1_0;
 import spark.Route;
 
@@ -22,11 +24,34 @@ public class TransactionsRestApiV1_0 {
         this.gson = gson;
     }
 
-    public Route create() {
+    public Route transfer() {
         return (request, response) -> {
-            ProcessTransactionRequestV1_0 requestBody = gson.fromJson(request.body(), ProcessTransactionRequestV1_0.class);
+            TransferMoneyRequestV1_0 requestBody = gson.fromJson(request.body(), TransferMoneyRequestV1_0.class);
             validator.validate(requestBody);
-            return adapter.process(requestBody);
+            return adapter.transfer(requestBody);
+        };
+    }
+
+    public Route deposit() {
+        return (request, response) -> {
+            DepositMoneyRequestV1_0 requestBody = gson.fromJson(request.body(), DepositMoneyRequestV1_0.class);
+            validator.validate(requestBody);
+            return adapter.deposit(requestBody);
+        };
+    }
+
+    public Route withdraw() {
+        return (request, response) -> {
+            WithdrawMoneyRequestV1_0 requestBody = gson.fromJson(request.body(), WithdrawMoneyRequestV1_0.class);
+            validator.validate(requestBody);
+            return adapter.withdraw(requestBody);
+        };
+    }
+
+    public Route getById() {
+        return (request, response) -> {
+            String transactionId = request.params(":id");
+            return adapter.transactionOfId(transactionId);
         };
     }
 }

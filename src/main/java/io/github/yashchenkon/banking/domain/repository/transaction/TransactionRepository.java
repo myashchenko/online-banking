@@ -5,4 +5,6 @@ import io.github.yashchenkon.banking.domain.model.transaction.Transaction;
 public interface TransactionRepository {
 
     void save(Transaction transaction);
+
+    Transaction transactionOfId(String id);
 }

@@ -26,10 +26,10 @@ public class AccountsRestApiAdapterV1_0 {
         return new EntityCreatedResponseV1_0(iban);
     }
 
-    public AccountResponseBodyV1_0 accountOfIban(String iban) {
-        Account account = accountService.accountOfIban(iban);
+    public AccountResponseBodyV1_0 accountOfId(String iban) {
+        Account account = accountService.accountOfId(iban);
         return new AccountResponseBodyV1_0(
-            account.iban()
+            account.iban(), account.name(), account.currency().getCurrencyCode(), account.balance()
         );
     }
 }

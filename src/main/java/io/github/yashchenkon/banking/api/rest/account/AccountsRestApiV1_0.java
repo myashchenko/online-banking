@@ -33,7 +33,7 @@ public class AccountsRestApiV1_0 {
     public Route getById() {
         return (request, response) -> {
             String iban = request.params(":id");
-            return adapter.accountOfIban(iban);
+            return adapter.accountOfId(iban);
         };
     }
 }

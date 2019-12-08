@@ -1,16 +1,16 @@
-package io.github.yashchenkon.banking.domain.model.transaction;
+package io.github.yashchenkon.banking.api.rest.transaction.body;
 
 import java.time.Instant;
 
-public class Transaction {
+public class TransactionResponseBodyV1_0 {
     private final String id;
-    private final TransactionType type;
+    private final String type;
     private final String sourceAccountId;
     private final String targetAccountId;
     private final Double amount;
     private final Instant completedAt;
 
-    public Transaction(String id, TransactionType type, String sourceAccountId, String targetAccountId, Double amount, Instant completedAt) {
+    public TransactionResponseBodyV1_0(String id, String type, String sourceAccountId, String targetAccountId, Double amount, Instant completedAt) {
         this.id = id;
         this.type = type;
         this.sourceAccountId = sourceAccountId;
@@ -19,27 +19,27 @@ public class Transaction {
         this.completedAt = completedAt;
     }
 
-    public String id() {
+    public String getId() {
         return id;
     }
 
-    public TransactionType type() {
+    public String getType() {
         return type;
     }
 
-    public String sourceAccountId() {
+    public String getSourceAccountId() {
         return sourceAccountId;
     }
 
-    public String targetAccountId() {
+    public String getTargetAccountId() {
         return targetAccountId;
     }
 
-    public Double amount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public Instant completedAt() {
+    public Instant getCompletedAt() {
         return completedAt;
     }
 }

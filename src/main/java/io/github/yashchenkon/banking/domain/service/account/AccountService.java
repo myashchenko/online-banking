@@ -3,22 +3,23 @@ package io.github.yashchenkon.banking.domain.service.account;
 import com.google.inject.Inject;
 
 import io.github.yashchenkon.banking.domain.exception.AccountNotFoundException;
+import io.github.yashchenkon.banking.domain.factory.account.AccountFactory;
 import io.github.yashchenkon.banking.domain.model.account.Account;
 import io.github.yashchenkon.banking.domain.repository.account.AccountRepository;
 import io.github.yashchenkon.banking.domain.service.account.dto.CreateAccountDto;
-import io.github.yashchenkon.banking.domain.service.account.iban.IbanGenerator;
-
-import java.util.Currency;
+import io.github.yashchenkon.banking.infra.database.TransactionalExecutor;
 
 public class AccountService {
 
     private final AccountRepository repository;
-    private final IbanGenerator ibanGenerator;
+    private final AccountFactory accountFactory;
+    private final TransactionalExecutor transactionalExecutor;
 
     @Inject
-    public AccountService(AccountRepository repository, IbanGenerator ibanGenerator) {
+    public AccountService(AccountRepository repository, AccountFactory accountFactory, TransactionalExecutor transactionalExecutor) {
         this.repository = repository;
-        this.ibanGenerator = ibanGenerator;
+        this.accountFactory = accountFactory;
+        this.transactionalExecutor = transactionalExecutor;
     }
 
     /**
@@ -28,11 +29,9 @@ public class AccountService {
      * @return IBAN of newly created account
      */
     public String create(CreateAccountDto request) {
-        String iban = ibanGenerator.generate();
-        Currency currency = Currency.getInstance(request.currency());
-        Account account = new Account(iban, request.name(), currency, 0.0);
+        Account account = accountFactory.create(request.name(), request.currency());
 
-        repository.save(account);
+        transactionalExecutor.execute(() -> repository.save(account));
 
         return account.iban();
     }
@@ -43,8 +42,8 @@ public class AccountService {
      * @param iban - IBAN number of account
      * @return account
      */
-    public Account accountOfIban(String iban) {
-        Account account = repository.accountOfIban(iban);
+    public Account accountOfId(String iban) {
+        Account account = transactionalExecutor.executeReadOnly(() -> repository.accountOfId(iban));
         if (account == null) {
             throw new AccountNotFoundException();
         }
