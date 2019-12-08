@@ -1,4 +1,4 @@
-package io.github.yashchenkon.banking.api.rest.account;
+package io.github.yashchenkon.banking.api.rest.transaction;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Tag;
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.yashchenkon.banking.api.rest.BaseRestApiTest;
 import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.DepositMoneyRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.TransferMoneyRequestV1_0;

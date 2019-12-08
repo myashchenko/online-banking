@@ -1,4 +1,4 @@
-package io.github.yashchenkon.banking.api.rest.account;
+package io.github.yashchenkon.banking.api.rest;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

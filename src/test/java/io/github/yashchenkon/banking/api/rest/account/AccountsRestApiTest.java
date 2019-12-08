@@ -3,6 +3,7 @@ package io.github.yashchenkon.banking.api.rest.account;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+import io.github.yashchenkon.banking.api.rest.BaseRestApiTest;
 import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV1_0;
 import io.restassured.RestAssured;
 
