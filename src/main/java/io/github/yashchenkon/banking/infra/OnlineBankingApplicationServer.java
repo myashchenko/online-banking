@@ -39,7 +39,7 @@ public class OnlineBankingApplicationServer {
 
         Spark.path("/api/v1.0", () -> {
             Spark.path("/accounts", () -> {
-                Spark.post("/", accountsRestApi.create(), gson::toJson);
+                Spark.post("", accountsRestApi.create(), gson::toJson);
                 Spark.get("/:id", accountsRestApi.getById(), gson::toJson);
             });
 

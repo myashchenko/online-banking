@@ -4,7 +4,7 @@ import java.util.Currency;
 
 public class Account {
 
-    private final Long id;
+    private Long id;
     private final String iban;
     private final String name;
     private final Currency currency;
@@ -16,6 +16,10 @@ public class Account {
         this.name = name;
         this.currency = currency;
         this.balance = balance;
+    }
+
+    public void initId(Long id) {
+        this.id = id;
     }
 
     public Long id() {

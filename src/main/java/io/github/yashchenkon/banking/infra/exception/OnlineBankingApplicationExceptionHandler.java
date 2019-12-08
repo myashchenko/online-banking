@@ -3,6 +3,8 @@ package io.github.yashchenkon.banking.infra.exception;
 import com.google.gson.Gson;
 
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.yashchenkon.banking.api.common.body.ErrorResponseBodyV1_0;
 import io.github.yashchenkon.banking.domain.exception.AccountNotFoundException;
@@ -14,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class OnlineBankingApplicationExceptionHandler implements ExceptionHandler<Exception> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OnlineBankingApplicationExceptionHandler.class);
 
     private static Map<Class<? extends Exception>, HttpStatusCodeWithMessage> EXCEPTION_TO_STATUS_MAPPING = Map.of(
         AccountNotFoundException.class, new HttpStatusCodeWithMessage(HttpStatus.NOT_FOUND_404, "Cannot find such account"),
@@ -28,6 +32,8 @@ public class OnlineBankingApplicationExceptionHandler implements ExceptionHandle
 
     @Override
     public void handle(Exception exception, Request request, Response response) {
+        LOGGER.error("Exception while processing request", exception);
+
         HttpStatusCodeWithMessage statusCodeWithMessage = Optional.ofNullable(EXCEPTION_TO_STATUS_MAPPING.get(exception.getClass()))
             .orElseGet(() -> EXCEPTION_TO_STATUS_MAPPING.get(Exception.class));
 

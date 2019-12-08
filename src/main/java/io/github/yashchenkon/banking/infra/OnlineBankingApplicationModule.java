@@ -14,6 +14,7 @@ import io.github.yashchenkon.banking.api.rest.transaction.TransactionsRestApiV1_
 import io.github.yashchenkon.banking.domain.repository.account.AccountRepository;
 import io.github.yashchenkon.banking.domain.repository.account.h2.H2AccountRepository;
 import io.github.yashchenkon.banking.domain.service.account.AccountService;
+import io.github.yashchenkon.banking.domain.service.account.iban.IbanGenerator;
 import io.github.yashchenkon.banking.infra.properties.DatabaseProperties;
 import io.github.yashchenkon.banking.infra.properties.PropertiesLoader;
 
@@ -34,6 +35,7 @@ public class OnlineBankingApplicationModule extends AbstractModule {
         bind(OnlineBankingApplicationServer.class).in(Singleton.class);
 
         bind(AccountRepository.class).to(H2AccountRepository.class).in(Singleton.class);
+        bind(IbanGenerator.class).in(Singleton.class);
         bind(AccountService.class).in(Singleton.class);
         bind(AccountRestApiValidatorV1_0.class).in(Singleton.class);
         bind(AccountsRestApiAdapterV1_0.class).in(Singleton.class);
