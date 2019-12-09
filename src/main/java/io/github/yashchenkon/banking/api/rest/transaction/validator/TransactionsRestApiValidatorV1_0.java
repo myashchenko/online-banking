@@ -16,7 +16,7 @@ public class TransactionsRestApiValidatorV1_0 {
             throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.BLANK);
         }
         if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.INVALID_VALUE);
+            throw new ValidationFailedException(FieldNames.AMOUNT, ValidationFailedException.ValidationStatus.INVALID_VALUE);
         }
         if (request.getSourceAccountId().equals(request.getTargetAccountId())) {
             throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.INVALID_VALUE);
@@ -28,7 +28,7 @@ public class TransactionsRestApiValidatorV1_0 {
             throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.BLANK);
         }
         if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.INVALID_VALUE);
+            throw new ValidationFailedException(FieldNames.AMOUNT, ValidationFailedException.ValidationStatus.INVALID_VALUE);
         }
     }
 
@@ -37,7 +37,7 @@ public class TransactionsRestApiValidatorV1_0 {
             throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.BLANK);
         }
         if (request.getAmount() == null || request.getAmount() <= 0) {
-            throw new ValidationFailedException(FieldNames.TARGET_ACCOUNT_ID, ValidationFailedException.ValidationStatus.INVALID_VALUE);
+            throw new ValidationFailedException(FieldNames.AMOUNT, ValidationFailedException.ValidationStatus.INVALID_VALUE);
         }
     }
 }

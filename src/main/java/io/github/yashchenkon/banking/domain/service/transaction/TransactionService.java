@@ -42,11 +42,6 @@ public class TransactionService {
             transferMoney.sourceAccountId(), transferMoney.targetAccountId(), transferMoney.amount());
 
         transactionalExecutor.execute(() -> {
-            boolean sourceAccountExists = accountRepository.exists(transferMoney.sourceAccountId());
-            if (!sourceAccountExists) {
-                throw new AccountNotFoundException();
-            }
-
             // avoid deadlock
             boolean withdrawFirst = transferMoney.sourceAccountId().compareTo(transferMoney.targetAccountId()) > 0;
             if (withdrawFirst) {
@@ -81,6 +76,11 @@ public class TransactionService {
     }
 
     private void deposit(String accountId, Double amount) {
+        boolean accountExists = accountRepository.exists(accountId);
+        if (!accountExists) {
+            throw new AccountNotFoundException();
+        }
+
         boolean depositSucceeded = accountRepository.deposit(accountId, amount);
         if (!depositSucceeded) {
             throw new AccountNotFoundException();
@@ -105,6 +105,11 @@ public class TransactionService {
     }
 
     private void withdraw(String accountId, Double amount) {
+        boolean accountExists = accountRepository.exists(accountId);
+        if (!accountExists) {
+            throw new AccountNotFoundException();
+        }
+
         boolean withdrawSucceeded = accountRepository.withdraw(accountId, amount);
         if (!withdrawSucceeded) {
             throw new AccountHasLowBalanceException();
