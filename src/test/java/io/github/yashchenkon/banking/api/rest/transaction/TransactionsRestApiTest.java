@@ -242,6 +242,26 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
     }
 
     @Test
+    public void shouldTransferMoneyDifferentCurrencies() {
+        String sourceAccountId = createRandomAccount("USD");
+        String targetAccountId = createRandomAccount("EUR");
+
+        Double amount = 100.0;
+        deposit(sourceAccountId, amount);
+
+        String transactionId = transfer(sourceAccountId, targetAccountId, amount);
+
+        verifyTransaction(transactionId, TransactionType.TRANSFER, sourceAccountId, targetAccountId, amount);
+        verifyAccount(sourceAccountId, 0.0);
+        verifyAccount(targetAccountId, amount * 0.9);
+
+        transactionId = transfer(targetAccountId, sourceAccountId, amount * 0.9);
+        verifyTransaction(transactionId, TransactionType.TRANSFER, targetAccountId, sourceAccountId, amount * 0.9);
+        verifyAccount(sourceAccountId, amount);
+        verifyAccount(targetAccountId, 0.0);
+    }
+
+    @Test
     @Tag("slow")
     public void shouldTransferMoneyHighConcurrency() {
         String sourceAccountId = createRandomAccount();
@@ -561,10 +581,14 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         });
     }
 
-    private String createRandomAccount() {
+    public String createRandomAccount() {
+        return createRandomAccount("USD");
+    }
+
+    private String createRandomAccount(String currency) {
         CreateAccountRequestV1_0 request = new CreateAccountRequestV1_0();
         request.setName(UUID.randomUUID().toString());
-        request.setCurrency("USD");
+        request.setCurrency(currency);
 
         return RestAssured
             .given()

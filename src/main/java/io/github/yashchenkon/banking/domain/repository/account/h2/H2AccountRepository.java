@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Currency;
 
 import javax.inject.Inject;
 
@@ -70,6 +71,25 @@ public class H2AccountRepository implements AccountRepository {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 return resultSet.next();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    @Override
+    public Currency currencyOfAccount(String id) {
+        Connection connection = connectionProvider.acquire();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT currency FROM accounts WHERE id = ? LIMIT 1")) {
+            preparedStatement.setString(1, id);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Currency.getInstance(resultSet.getString(1));
+                }
+
+                return null;
             }
         } catch (SQLException e) {
             throw new DataAccessException(e);

@@ -8,10 +8,13 @@ import io.github.yashchenkon.banking.domain.model.transaction.Transaction;
 import io.github.yashchenkon.banking.domain.model.transaction.TransactionType;
 import io.github.yashchenkon.banking.domain.repository.account.AccountRepository;
 import io.github.yashchenkon.banking.domain.repository.transaction.TransactionRepository;
+import io.github.yashchenkon.banking.domain.service.exchange.CurrencyExchangeService;
 import io.github.yashchenkon.banking.domain.service.transaction.dto.DepositMoneyDto;
 import io.github.yashchenkon.banking.domain.service.transaction.dto.TransferMoneyDto;
 import io.github.yashchenkon.banking.domain.service.transaction.dto.WithdrawMoneyDto;
 import io.github.yashchenkon.banking.infra.database.TransactionalExecutor;
+
+import java.util.Currency;
 
 import javax.inject.Inject;
 
@@ -21,14 +24,17 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionFactory transactionFactory;
     private final TransactionalExecutor transactionalExecutor;
+    private final CurrencyExchangeService currencyExchangeService;
 
     @Inject
     public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository,
-                              TransactionFactory transactionFactory, TransactionalExecutor transactionalExecutor) {
+                              TransactionFactory transactionFactory, TransactionalExecutor transactionalExecutor,
+                              CurrencyExchangeService currencyExchangeService) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.transactionFactory = transactionFactory;
         this.transactionalExecutor = transactionalExecutor;
+        this.currencyExchangeService = currencyExchangeService;
     }
 
     /**
@@ -44,12 +50,22 @@ public class TransactionService {
         transactionalExecutor.execute(() -> {
             // avoid deadlock
             boolean withdrawFirst = transferMoney.sourceAccountId().compareTo(transferMoney.targetAccountId()) > 0;
+
+            Currency sourceCurrency = accountRepository.currencyOfAccount(transferMoney.sourceAccountId());
+            Currency targetCurrency = accountRepository.currencyOfAccount(transferMoney.targetAccountId());
+            if (sourceCurrency == null || targetCurrency == null) {
+                throw new AccountNotFoundException();
+            }
+
+            Double amountToWithdraw = transaction.amount();
+            Double amountToDeposit = currencyExchangeService.exchange(sourceCurrency, targetCurrency, amountToWithdraw);
+
             if (withdrawFirst) {
-                withdraw(transferMoney.sourceAccountId(), transaction.amount());
-                deposit(transferMoney.targetAccountId(), transaction.amount());
+                withdraw(transferMoney.sourceAccountId(), amountToWithdraw);
+                deposit(transferMoney.targetAccountId(), amountToDeposit);
             } else {
-                deposit(transferMoney.targetAccountId(), transaction.amount());
-                withdraw(transferMoney.sourceAccountId(), transaction.amount());
+                deposit(transferMoney.targetAccountId(), amountToDeposit);
+                withdraw(transferMoney.sourceAccountId(), amountToWithdraw);
             }
 
             transactionRepository.save(transaction);
@@ -68,6 +84,11 @@ public class TransactionService {
         Transaction transaction = transactionFactory.create(TransactionType.DEPOSIT, depositMoney.targetAccountId(), depositMoney.amount());
 
         transactionalExecutor.execute(() -> {
+            boolean accountExists = accountRepository.exists(depositMoney.targetAccountId());
+            if (!accountExists) {
+                throw new AccountNotFoundException();
+            }
+
             deposit(depositMoney.targetAccountId(), depositMoney.amount());
             transactionRepository.save(transaction);
         });
@@ -76,11 +97,6 @@ public class TransactionService {
     }
 
     private void deposit(String accountId, Double amount) {
-        boolean accountExists = accountRepository.exists(accountId);
-        if (!accountExists) {
-            throw new AccountNotFoundException();
-        }
-
         boolean depositSucceeded = accountRepository.deposit(accountId, amount);
         if (!depositSucceeded) {
             throw new AccountNotFoundException();
@@ -97,6 +113,11 @@ public class TransactionService {
         Transaction transaction = transactionFactory.create(TransactionType.WITHDRAW, withdrawMoney.targetAccountId(), withdrawMoney.amount());
 
         transactionalExecutor.execute(() -> {
+            boolean accountExists = accountRepository.exists(withdrawMoney.targetAccountId());
+            if (!accountExists) {
+                throw new AccountNotFoundException();
+            }
+
             withdraw(withdrawMoney.targetAccountId(), withdrawMoney.amount());
             transactionRepository.save(transaction);
         });
@@ -105,11 +126,6 @@ public class TransactionService {
     }
 
     private void withdraw(String accountId, Double amount) {
-        boolean accountExists = accountRepository.exists(accountId);
-        if (!accountExists) {
-            throw new AccountNotFoundException();
-        }
-
         boolean withdrawSucceeded = accountRepository.withdraw(accountId, amount);
         if (!withdrawSucceeded) {
             throw new AccountHasLowBalanceException();

@@ -2,6 +2,8 @@ package io.github.yashchenkon.banking.domain.repository.account;
 
 import io.github.yashchenkon.banking.domain.model.account.Account;
 
+import java.util.Currency;
+
 /**
  * Account repository is responsible for storing account-related information
  */
@@ -29,6 +31,14 @@ public interface AccountRepository {
      * @return true if object exists, otherwise - false
      */
     boolean exists(String id);
+
+    /**
+     * Determines currency of account by its id.
+     *
+     * @param id - account id
+     * @return currency, if account exists; otherwise - null
+     */
+    Currency currencyOfAccount(String id);
 
     /**
      * Withdraws money from the account.

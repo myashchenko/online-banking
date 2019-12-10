@@ -1,5 +1,7 @@
 package io.github.yashchenkon.banking.api.rest.account.validator;
 
+import static io.github.yashchenkon.banking.common.CurrencyCodes.SUPPORTED_CURRENCIES;
+
 import io.github.yashchenkon.banking.api.common.FieldNames;
 import io.github.yashchenkon.banking.api.common.exception.ValidationFailedException;
 import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV1_0;
@@ -11,8 +13,6 @@ import java.util.List;
  * Validates REST API requests.
  */
 public class AccountRestApiValidatorV1_0 {
-
-    private static final List<String> SUPPORTED_CURRENCIES = List.of("USD", "EUR");
 
     public void validate(CreateAccountRequestV1_0 request) {
         if (request.getName() == null || request.getName().isBlank()) {

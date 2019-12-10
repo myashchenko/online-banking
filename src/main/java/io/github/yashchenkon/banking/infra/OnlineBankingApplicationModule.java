@@ -24,6 +24,9 @@ import io.github.yashchenkon.banking.domain.repository.transaction.h2.assembler.
 import io.github.yashchenkon.banking.domain.service.account.AccountService;
 import io.github.yashchenkon.banking.domain.service.account.iban.FakeIbanGenerator;
 import io.github.yashchenkon.banking.domain.service.account.iban.IbanGenerator;
+import io.github.yashchenkon.banking.domain.service.exchange.CurrencyExchangeService;
+import io.github.yashchenkon.banking.domain.service.exchange.rate.CurrencyExchangeRateProvider;
+import io.github.yashchenkon.banking.domain.service.exchange.rate.InMemoryExchangeRateProvider;
 import io.github.yashchenkon.banking.domain.service.transaction.TransactionService;
 import io.github.yashchenkon.banking.infra.database.ConnectionProvider;
 import io.github.yashchenkon.banking.infra.database.TransactionalExecutor;
@@ -51,6 +54,9 @@ public class OnlineBankingApplicationModule extends AbstractModule {
 
         bind(ConnectionProvider.class).in(Singleton.class);
         bind(TransactionalExecutor.class).in(Singleton.class);
+
+        bind(CurrencyExchangeRateProvider.class).to(InMemoryExchangeRateProvider.class).in(Singleton.class);
+        bind(CurrencyExchangeService.class).in(Singleton.class);
 
         bind(AccountAssembler.class).in(Singleton.class);
         bind(AccountRepository.class).to(H2AccountRepository.class).in(Singleton.class);
