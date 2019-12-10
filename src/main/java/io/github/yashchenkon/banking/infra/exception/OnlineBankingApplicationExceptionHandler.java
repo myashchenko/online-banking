@@ -18,6 +18,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Single point for handling "global" exceptions. The goal of this class is to explicitly provide mapping of the
+ * specific exceptions to HTTP responses.
+ */
 public class OnlineBankingApplicationExceptionHandler implements ExceptionHandler<Exception> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineBankingApplicationExceptionHandler.class);

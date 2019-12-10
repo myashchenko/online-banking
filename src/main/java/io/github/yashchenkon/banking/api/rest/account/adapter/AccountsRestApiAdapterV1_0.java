@@ -9,6 +9,9 @@ import io.github.yashchenkon.banking.domain.service.account.dto.CreateAccountDto
 
 import javax.inject.Inject;
 
+/**
+ * Adapter from REST API to domain services.
+ */
 public class AccountsRestApiAdapterV1_0 {
 
     private final AccountService accountService;

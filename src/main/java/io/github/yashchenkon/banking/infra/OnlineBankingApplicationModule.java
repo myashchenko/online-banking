@@ -22,6 +22,7 @@ import io.github.yashchenkon.banking.domain.repository.transaction.TransactionRe
 import io.github.yashchenkon.banking.domain.repository.transaction.h2.H2TransactionRepository;
 import io.github.yashchenkon.banking.domain.repository.transaction.h2.assembler.TransactionAssembler;
 import io.github.yashchenkon.banking.domain.service.account.AccountService;
+import io.github.yashchenkon.banking.domain.service.account.iban.FakeIbanGenerator;
 import io.github.yashchenkon.banking.domain.service.account.iban.IbanGenerator;
 import io.github.yashchenkon.banking.domain.service.transaction.TransactionService;
 import io.github.yashchenkon.banking.infra.database.ConnectionProvider;
@@ -33,6 +34,9 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+/**
+ * Setups DI container.
+ */
 public class OnlineBankingApplicationModule extends AbstractModule {
 
     private static final String APPLICATION_PROPERTIES_LOCATION = "config/application.properties";
@@ -50,7 +54,7 @@ public class OnlineBankingApplicationModule extends AbstractModule {
 
         bind(AccountAssembler.class).in(Singleton.class);
         bind(AccountRepository.class).to(H2AccountRepository.class).in(Singleton.class);
-        bind(IbanGenerator.class).in(Singleton.class);
+        bind(IbanGenerator.class).to(FakeIbanGenerator.class).in(Singleton.class);
         bind(AccountFactory.class).in(Singleton.class);
         bind(AccountService.class).in(Singleton.class);
         bind(AccountRestApiValidatorV1_0.class).in(Singleton.class);

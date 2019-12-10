@@ -16,6 +16,13 @@ public class AccountFactory {
         this.ibanGenerator = ibanGenerator;
     }
 
+    /**
+     * Creates new account and generates IBAN for this account.
+     *
+     * @param name - name of account to be created
+     * @param currencyCode - currency code of account to be created
+     * @return - newly created account
+     */
     public Account create(String name, String currencyCode) {
         Currency currency = Currency.getInstance(currencyCode);
 

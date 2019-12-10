@@ -6,6 +6,9 @@ import io.github.yashchenkon.banking.api.rest.transaction.body.DepositMoneyReque
 import io.github.yashchenkon.banking.api.rest.transaction.body.TransferMoneyRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.WithdrawMoneyRequestV1_0;
 
+/**
+ * Validates REST API requests.
+ */
 public class TransactionsRestApiValidatorV1_0 {
 
     public void validate(TransferMoneyRequestV1_0 request) {

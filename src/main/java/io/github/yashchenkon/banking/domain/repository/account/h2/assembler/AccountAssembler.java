@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Currency;
 
+/**
+ * Translates result set into domain object.
+ */
 public class AccountAssembler {
 
     public Account assemble(ResultSet resultSet) throws SQLException {

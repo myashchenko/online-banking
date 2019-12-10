@@ -6,6 +6,9 @@ import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV
 
 import java.util.Currency;
 
+/**
+ * Validates REST API requests.
+ */
 public class AccountRestApiValidatorV1_0 {
 
     public void validate(CreateAccountRequestV1_0 request) {

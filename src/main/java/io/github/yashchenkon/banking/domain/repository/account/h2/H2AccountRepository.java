@@ -13,6 +13,9 @@ import java.sql.SQLException;
 
 import javax.inject.Inject;
 
+/**
+ * Implementation of repository storing information in H2 database.
+ */
 public class H2AccountRepository implements AccountRepository {
 
     private final ConnectionProvider connectionProvider;

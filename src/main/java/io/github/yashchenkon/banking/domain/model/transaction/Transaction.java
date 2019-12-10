@@ -2,6 +2,9 @@ package io.github.yashchenkon.banking.domain.model.transaction;
 
 import java.time.Instant;
 
+/**
+ * Domain object representing transaction.
+ */
 public class Transaction {
     private final String id;
     private final TransactionType type;

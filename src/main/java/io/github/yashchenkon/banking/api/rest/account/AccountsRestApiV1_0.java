@@ -9,6 +9,9 @@ import spark.Route;
 
 import javax.inject.Inject;
 
+/**
+ * REST API handlers for accounts API.
+ */
 public class AccountsRestApiV1_0 {
 
     private final Gson gson;

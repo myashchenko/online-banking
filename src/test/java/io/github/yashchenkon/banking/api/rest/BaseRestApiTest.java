@@ -2,14 +2,17 @@ package io.github.yashchenkon.banking.api.rest;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import io.github.yashchenkon.banking.OnlineBankingApplication;
+import io.github.yashchenkon.banking.infra.test.TimingExtension;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import spark.Spark;
 
+@ExtendWith(TimingExtension.class)
 public abstract class BaseRestApiTest {
 
     public static RequestSpecification BASE_SPECIFICATION = new RequestSpecBuilder()

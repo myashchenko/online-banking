@@ -13,6 +13,9 @@ import io.github.yashchenkon.banking.domain.service.transaction.dto.WithdrawMone
 
 import javax.inject.Inject;
 
+/**
+ * Adapter from REST API to domain services.
+ */
 public class TransactionsRestApiAdapterV1_0 {
 
     private final TransactionService transactionService;

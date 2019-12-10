@@ -6,6 +6,9 @@ import io.github.yashchenkon.banking.domain.model.transaction.TransactionType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Translates result set into domain object.
+ */
 public class TransactionAssembler {
 
     public Transaction assemble(ResultSet resultSet) throws SQLException {

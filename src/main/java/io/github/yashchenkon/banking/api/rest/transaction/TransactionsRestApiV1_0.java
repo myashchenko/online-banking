@@ -11,6 +11,9 @@ import spark.Route;
 
 import javax.inject.Inject;
 
+/**
+ * REST API handlers for transactions API.
+ */
 public class TransactionsRestApiV1_0 {
 
     private final TransactionsRestApiAdapterV1_0 adapter;

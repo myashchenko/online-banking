@@ -286,12 +286,12 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         List<ScheduledThreadPoolExecutor> executors = createExecutors(6, 2);
 
         CountDownLatch readySteadyGo = new CountDownLatch(1);
-        CountDownLatch latch1 = transferAsync(executors.get(0), readySteadyGo, sourceAccountId, targetAccountId, 1.0, 2000);
-        CountDownLatch latch2 = transferAsync(executors.get(1), readySteadyGo, targetAccountId, sourceAccountId, 1.0, 2000);
-        CountDownLatch latch3 = depositAsync(executors.get(2), readySteadyGo, sourceAccountId, 1.0, 2000);
-        CountDownLatch latch4 = depositAsync(executors.get(3), readySteadyGo, targetAccountId, 1.0, 2000);
-        CountDownLatch latch5 = withdrawAsync(executors.get(4), readySteadyGo, sourceAccountId, 1.0, 2000);
-        CountDownLatch latch6 = withdrawAsync(executors.get(5), readySteadyGo, targetAccountId, 1.0, 2000);
+        CountDownLatch latch1 = transferAsync(executors.get(0), readySteadyGo, sourceAccountId, targetAccountId, 1.0, 1000);
+        CountDownLatch latch2 = transferAsync(executors.get(1), readySteadyGo, targetAccountId, sourceAccountId, 1.0, 1000);
+        CountDownLatch latch3 = depositAsync(executors.get(2), readySteadyGo, sourceAccountId, 1.0, 1000);
+        CountDownLatch latch4 = depositAsync(executors.get(3), readySteadyGo, targetAccountId, 1.0, 1000);
+        CountDownLatch latch5 = withdrawAsync(executors.get(4), readySteadyGo, sourceAccountId, 1.0, 1000);
+        CountDownLatch latch6 = withdrawAsync(executors.get(5), readySteadyGo, targetAccountId, 1.0, 1000);
         readySteadyGo.countDown();
 
         Stream.of(latch1, latch2, latch3, latch4, latch5, latch6).forEach(latch -> {
@@ -493,11 +493,15 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
     private CountDownLatch transferAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String sourceAccountId, String targetAccountId, Double amount, int numberOfTasks) {
         CountDownLatch latch = new CountDownLatch(numberOfTasks);
         for (int i = 0; i < numberOfTasks; i++) {
-            threadPoolExecutor.submit((Callable<Void>) () -> {
-                startAllTogether.await();
-                transfer(sourceAccountId, targetAccountId, amount);
-                latch.countDown();
-                return null;
+            threadPoolExecutor.submit(() -> {
+                try {
+                    startAllTogether.await();
+                    transfer(sourceAccountId, targetAccountId, amount);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         return latch;
@@ -506,11 +510,15 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
     private CountDownLatch depositAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String targetAccountId, Double amount, int numberOfTasks) {
         CountDownLatch latch = new CountDownLatch(numberOfTasks);
         for (int i = 0; i < numberOfTasks; i++) {
-            threadPoolExecutor.submit((Callable<Void>) () -> {
-                startAllTogether.await();
-                deposit(targetAccountId, amount);
-                latch.countDown();
-                return null;
+            threadPoolExecutor.submit(() -> {
+                try {
+                    startAllTogether.await();
+                    deposit(targetAccountId, amount);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         return latch;
@@ -519,11 +527,15 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
     private CountDownLatch withdrawAsync(ScheduledThreadPoolExecutor threadPoolExecutor, CountDownLatch startAllTogether, String targetAccountId, Double amount, int numberOfTasks) {
         CountDownLatch latch = new CountDownLatch(numberOfTasks);
         for (int i = 0; i < numberOfTasks; i++) {
-            threadPoolExecutor.submit((Callable<Void>) () -> {
-                startAllTogether.await();
-                withdraw(targetAccountId, amount);
-                latch.countDown();
-                return null;
+            threadPoolExecutor.submit(() -> {
+                try {
+                    startAllTogether.await();
+                    withdraw(targetAccountId, amount);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
             });
         }
         return latch;

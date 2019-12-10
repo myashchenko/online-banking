@@ -2,6 +2,9 @@ package io.github.yashchenkon.banking.infra.properties;
 
 import java.util.Properties;
 
+/**
+ * Take care of reading DB connection properties from the properties file located on classpath.
+ */
 public class DatabaseProperties {
     private static final String URL_PROPERTY = "database.url";
     private static final String USERNAME_PROPERTY = "database.username";

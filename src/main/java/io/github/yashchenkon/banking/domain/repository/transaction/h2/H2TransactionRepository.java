@@ -14,6 +14,9 @@ import java.sql.Timestamp;
 
 import javax.inject.Inject;
 
+/**
+ * Implementation of repository storing information in H2 database.
+ */
 public class H2TransactionRepository implements TransactionRepository {
 
     private final ConnectionProvider connectionProvider;

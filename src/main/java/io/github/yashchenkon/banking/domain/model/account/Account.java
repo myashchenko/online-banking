@@ -2,6 +2,9 @@ package io.github.yashchenkon.banking.domain.model.account;
 
 import java.util.Currency;
 
+/**
+ * Domain object representing account.
+ */
 public class Account {
 
     private final String iban;

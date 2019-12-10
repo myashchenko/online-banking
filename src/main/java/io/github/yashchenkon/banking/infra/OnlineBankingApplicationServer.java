@@ -12,6 +12,9 @@ import spark.Spark;
 
 import javax.inject.Inject;
 
+/**
+ * Setups HTTP handlers and server configurations.
+ */
 public class OnlineBankingApplicationServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OnlineBankingApplicationServer.class);
@@ -27,6 +30,11 @@ public class OnlineBankingApplicationServer {
         this.transactionsRestApi = transactionsRestApi;
     }
 
+    /**
+     * Spins up the server listening on a specified port.
+     *
+     * @param port - port to listen to request on
+     */
     public void run(int port) {
         LOGGER.info("Starting Online Banking Application...");
 
