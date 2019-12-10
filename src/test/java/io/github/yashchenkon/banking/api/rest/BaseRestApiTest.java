@@ -8,9 +8,13 @@ import io.github.yashchenkon.banking.OnlineBankingApplication;
 import io.github.yashchenkon.banking.infra.test.TimingExtension;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.config.ConnectionConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import spark.Spark;
+
+import java.util.concurrent.TimeUnit;
 
 @ExtendWith(TimingExtension.class)
 public abstract class BaseRestApiTest {
@@ -21,6 +25,13 @@ public abstract class BaseRestApiTest {
         .setBasePath(basePath())
         .setAccept(ContentType.JSON)
         .setContentType(ContentType.JSON)
+        .setConfig(
+            // TODO it seems RestAssured doesn't reuse connections at all - it might cause problems when abnormal amount of connections are open at once
+            RestAssuredConfig.config()
+                .connectionConfig(ConnectionConfig.connectionConfig()
+                    .closeIdleConnectionsAfterEachResponseAfter(1, TimeUnit.SECONDS)
+                )
+        )
         .build();
 
     @BeforeAll

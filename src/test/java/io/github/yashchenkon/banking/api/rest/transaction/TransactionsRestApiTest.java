@@ -16,7 +16,6 @@ import io.restassured.RestAssured;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -255,8 +254,8 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         List<ScheduledThreadPoolExecutor> executors = createExecutors(2, 5);
 
         CountDownLatch sync = new CountDownLatch(1);
-        CountDownLatch latch1 = transferAsync(executors.get(0), sync, sourceAccountId, targetAccountId, 1.0, 5000);
-        CountDownLatch latch2 = transferAsync(executors.get(1), sync, targetAccountId, sourceAccountId, 1.0, 5000);
+        CountDownLatch latch1 = transferAsync(executors.get(0), sync, sourceAccountId, targetAccountId, 1.0, 2000);
+        CountDownLatch latch2 = transferAsync(executors.get(1), sync, targetAccountId, sourceAccountId, 1.0, 2000);
         sync.countDown();
 
         Stream.of(latch1, latch2).forEach(latch -> {
@@ -323,12 +322,12 @@ public class TransactionsRestApiTest extends BaseRestApiTest {
         List<ScheduledThreadPoolExecutor> executors = createExecutors(3, 5);
 
         CountDownLatch sync = new CountDownLatch(1);
-        CountDownLatch latch1 = transferAsync(executors.get(0), sync, account1, account2, 1.0, 2000);
-        CountDownLatch latch2 = transferAsync(executors.get(0), sync, account1, account3, 1.0, 2000);
-        CountDownLatch latch3 = transferAsync(executors.get(1), sync, account2, account3, 1.0, 2000);
-        CountDownLatch latch4 = transferAsync(executors.get(1), sync, account2, account1, 1.0, 2000);
-        CountDownLatch latch5 = transferAsync(executors.get(2), sync, account3, account1, 1.0, 2000);
-        CountDownLatch latch6 = transferAsync(executors.get(2), sync, account3, account2, 1.0, 2000);
+        CountDownLatch latch1 = transferAsync(executors.get(0), sync, account1, account2, 1.0, 1000);
+        CountDownLatch latch2 = transferAsync(executors.get(0), sync, account1, account3, 1.0, 1000);
+        CountDownLatch latch3 = transferAsync(executors.get(1), sync, account2, account3, 1.0, 1000);
+        CountDownLatch latch4 = transferAsync(executors.get(1), sync, account2, account1, 1.0, 1000);
+        CountDownLatch latch5 = transferAsync(executors.get(2), sync, account3, account1, 1.0, 1000);
+        CountDownLatch latch6 = transferAsync(executors.get(2), sync, account3, account2, 1.0, 1000);
         sync.countDown();
 
         Stream.of(latch1, latch2, latch3, latch4, latch5, latch6).forEach(latch -> {
