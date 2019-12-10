@@ -14,7 +14,8 @@ public class ValidationFailedException extends RuntimeException {
 
     public enum ValidationStatus {
         BLANK("shouldn't be blank"),
-        INVALID_VALUE("should be a valid value");
+        INVALID_VALUE("should be a valid value"),
+        UNSUPPORTED_VALUE("contains unsupported value");
 
         private final String message;
 
