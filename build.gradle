@@ -1,11 +1,13 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'io.github.yashchenkon.banking'
 version '0.0.1'
 
 sourceCompatibility = 1.11
+mainClassName = "io.github.yashchenkon.banking.OnlineBankingApplication"
 
 repositories {
     mavenCentral()
