@@ -19,7 +19,7 @@ REST API for transferring money between bank accounts.
 | POST   | `/api/v1.0/transactions/deposit`  | <code>{ "targetAccountId" : "123", "amount" : 100.0 }</code>                             | Deposit money to account                   |
 | POST   | `/api/v1.0/transactions/withdraw` | <code>{ "targetAccountId" : "123", "amount" : 100.0 }</code>                             | Withdraw money from account                |
 | POST   | `/api/v1.0/transactions/transfer` | <code>{ "sourceAccountId" : "123", "targetAccountId" : "345", "amount" : 100.0 }</code>  | Transfer money from one account to another |
-| GET    | `/api/v1.0/transactions/{id}}`    |                                                                                          | Get transaction details                    |
+| GET    | `/api/v1.0/transactions/{id}`     |                                                                                          | Get transaction details                    |
 
 ## Running
 To start service just run:
