@@ -2,7 +2,7 @@ package io.github.yashchenkon.banking.api.rest.account.adapter;
 
 import io.github.yashchenkon.banking.api.rest.account.body.AccountResponseBodyV1_0;
 import io.github.yashchenkon.banking.api.rest.account.body.CreateAccountRequestV1_0;
-import io.github.yashchenkon.banking.api.rest.common.body.EntityCreatedResponseV1_0;
+import io.github.yashchenkon.banking.api.common.body.EntityCreatedResponseV1_0;
 import io.github.yashchenkon.banking.domain.model.account.Account;
 import io.github.yashchenkon.banking.domain.service.account.AccountService;
 import io.github.yashchenkon.banking.domain.service.account.dto.CreateAccountDto;

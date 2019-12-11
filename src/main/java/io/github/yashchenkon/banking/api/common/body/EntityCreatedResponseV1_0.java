@@ -1,4 +1,4 @@
-package io.github.yashchenkon.banking.api.rest.common.body;
+package io.github.yashchenkon.banking.api.common.body;
 
 public class EntityCreatedResponseV1_0 {
     private final String id;

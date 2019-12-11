@@ -1,6 +1,6 @@
 package io.github.yashchenkon.banking.api.rest.transaction.adapter;
 
-import io.github.yashchenkon.banking.api.rest.common.body.EntityCreatedResponseV1_0;
+import io.github.yashchenkon.banking.api.common.body.EntityCreatedResponseV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.DepositMoneyRequestV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.TransactionResponseBodyV1_0;
 import io.github.yashchenkon.banking.api.rest.transaction.body.TransferMoneyRequestV1_0;
